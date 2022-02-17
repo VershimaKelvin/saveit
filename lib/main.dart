@@ -13,16 +13,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Map<String,dynamic>>? map;
+  var data = [];
+  var data2 = [];
+  List<Map<String, dynamic>>? map;
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final numberController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title:  const Center(child: Text('SQLITE CRUD')),
+          title: const Center(child: Text('SQLITE CRUD')),
           backgroundColor: Colors.blue,
         ),
         body: Column(
@@ -34,37 +37,37 @@ class _MyAppState extends State<MyApp> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
                       child: TextFormField(
-                        controller:nameController,
-                        validator: (value){
-                          if(value==null || value.isEmpty){
+                        controller: nameController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
                             return 'Enter a name';
                           }
                           return null;
                         },
-                        decoration: const InputDecoration(
-                          labelText: 'full name'
-                        ),
+                        decoration:
+                            const InputDecoration(labelText: 'full name'),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 15),
                       child: TextFormField(
-                          controller: numberController,
-                        validator: (value){
-                          if(value==null || value.isEmpty || value.length < 10){
+                        controller: numberController,
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value.length < 10) {
                             return 'Enter a valid mobile number';
                           }
                           return null;
                         },
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                            labelText: 'mobile'
-                        ),
+                        decoration: const InputDecoration(labelText: 'mobile'),
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -78,31 +81,55 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () {
                     onSave();
                   },
-                  child:const Text(
-                      'Save',
-                    style: TextStyle(
-                      color: Colors.white
-                    ),
-
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white),
                   ),
-
                 ),
-
               ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                  itemCount: data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Card(
+                        child: ListTile(
+                          leading: Icon(
+                            Icons.person,
+                            color: Colors.blue[600],
+                          ),
+                          title: Text(
+                              data[index].toString().toUpperCase(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold
+                          ),),
+                          subtitle: Text(data2[index]),
+                        ),
+                    ),
+                      );
+                  }),
             ),
           ],
         ),
       ),
     );
   }
- void onSave()async{
-    if(formKey.currentState!.validate()){
+
+  void onSave() async {
+    if (formKey.currentState!.validate()) {
       String name = nameController.text;
       String number = numberController.text;
+      setState(() {
+        data.add(name);
+        data2.add(number);
+      });
+
       DatabaseHelper instance = DatabaseHelper.instance;
-      Map<String,dynamic> row = {
-        'name':name,
-        'mobile':number,
+      Map<String, dynamic> row = {
+        'name': name,
+        'mobile': number,
       };
       int x = await instance.insert(row);
       print(x);
@@ -111,7 +138,5 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void toList(){
-
-  }
+  void toList() {}
 }
