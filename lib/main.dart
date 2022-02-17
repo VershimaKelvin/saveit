@@ -135,6 +135,8 @@ class _MyAppState extends State<MyApp> {
       print(x);
       map = await instance.query();
       print(map);
+      nameController.clear();
+      numberController.clear();
     }
   }
 
