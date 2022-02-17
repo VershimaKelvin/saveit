@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saveit/utils/database_helper.dart';
 
 void main() {
   runApp(const MaterialApp(home: MyApp()));
@@ -12,7 +13,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  List<Map<String,dynamic>>? map;
   final formKey = GlobalKey<FormState>();
+  final nameController = TextEditingController();
+  final numberController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -32,6 +36,7 @@ class _MyAppState extends State<MyApp> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
                       child: TextFormField(
+                        controller:nameController,
                         validator: (value){
                           if(value==null || value.isEmpty){
                             return 'Enter a name';
@@ -46,6 +51,7 @@ class _MyAppState extends State<MyApp> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 15),
                       child: TextFormField(
+                          controller: numberController,
                         validator: (value){
                           if(value==null || value.isEmpty || value.length < 10){
                             return 'Enter a valid mobile number';
@@ -89,9 +95,23 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
- void onSave(){
+ void onSave()async{
     if(formKey.currentState!.validate()){
-      print('successfull');
+      String name = nameController.text;
+      String number = numberController.text;
+      DatabaseHelper instance = DatabaseHelper.instance;
+      Map<String,dynamic> row = {
+        'name':name,
+        'mobile':number,
+      };
+      int x = await instance.insert(row);
+      print(x);
+      map = await instance.query();
+      print(map);
     }
+  }
+
+  void toList(){
+
   }
 }
