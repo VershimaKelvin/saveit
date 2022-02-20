@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saveit/models/contact.dart';
 import 'package:saveit/utils/database_helper.dart';
 
 void main() {
@@ -13,12 +14,43 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var data = [];
-  var data2 = [];
-  List<Map<String, dynamic>>? map;
+
+  // var data = [];
+  // var data2 = [];
+  List<Contact> contactList = [];
+  List<Contact> contacts = [];
+  List<Map<String, dynamic>>? returnedList;
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final numberController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    getDatabase();
+  }
+
+  void getDatabase() async {
+    DatabaseHelper instance = DatabaseHelper.instance;
+    returnedList = await instance.query();
+
+    print(returnedList);
+    print(returnedList![0]);
+
+
+    returnedList!.forEach((element) {
+      Map<String, dynamic> contacts = element;
+        Contact contactObject = Contact(
+            id: contacts['id'],
+            name: contacts['name'],
+            number: contacts['mobile']);
+
+          contactList.add(contactObject);
+
+        contacts={};
+    });
+    print(contactList);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,25 +122,24 @@ class _MyAppState extends State<MyApp> {
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: data.length,
+                  itemCount: contactList.length,
                   itemBuilder: (BuildContext context, int index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Card(
                         child: ListTile(
                           leading: Icon(
                             Icons.person,
                             color: Colors.blue[600],
                           ),
                           title: Text(
-                              data[index].toString().toUpperCase(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold
-                          ),),
-                          subtitle: Text(data2[index]),
+                            contactList[index].name!,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(contactList[index].number!),
                         ),
-                    ),
-                      );
+                      ),
+                    );
                   }),
             ),
           ],
@@ -119,12 +150,9 @@ class _MyAppState extends State<MyApp> {
 
   void onSave() async {
     if (formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved'),));
       String name = nameController.text;
       String number = numberController.text;
-      setState(() {
-        data.add(name);
-        data2.add(number);
-      });
 
       DatabaseHelper instance = DatabaseHelper.instance;
       Map<String, dynamic> row = {
@@ -132,13 +160,22 @@ class _MyAppState extends State<MyApp> {
         'mobile': number,
       };
       int x = await instance.insert(row);
-      print(x);
-      map = await instance.query();
-      print(map);
+      getDatabase();
       nameController.clear();
       numberController.clear();
     }
   }
 
-  void toList() {}
+  // void toList() async {
+  //   DatabaseHelper instance = DatabaseHelper.instance;
+  //   returnedList = await instance.query();
+  //   for (var i = 0; i <= returnedList!.length; i++) {
+  //     Map<String, dynamic> contacts = returnedList![i];
+  //     Contact contactObject = Contact(
+  //         id: contacts['id'],
+  //         name: contacts['name'],
+  //         number: contacts['number']);
+  //     contactList.add(contactObject);
+  //   }
+  // }
 }
