@@ -17,8 +17,8 @@ class _MyAppState extends State<MyApp> {
 
   // var data = [];
   // var data2 = [];
+  var itemCount;
   List<Contact> contactList = [];
-  List<Contact> contacts = [];
   List<Map<String, dynamic>>? returnedList;
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
@@ -33,23 +33,17 @@ class _MyAppState extends State<MyApp> {
   void getDatabase() async {
     DatabaseHelper instance = DatabaseHelper.instance;
     returnedList = await instance.query();
-
-    print(returnedList);
-    print(returnedList![0]);
-
-
     returnedList!.forEach((element) {
       Map<String, dynamic> contacts = element;
         Contact contactObject = Contact(
             id: contacts['id'],
             name: contacts['name'],
             number: contacts['mobile']);
-
+        setState(() {
           contactList.add(contactObject);
-
+        });
         contacts={};
     });
-    print(contactList);
   }
 
   @override
@@ -160,10 +154,42 @@ class _MyAppState extends State<MyApp> {
         'mobile': number,
       };
       int x = await instance.insert(row);
-      getDatabase();
+      savingToList(name,number);
       nameController.clear();
       numberController.clear();
     }
+  }
+
+  forSaving()async{
+    DatabaseHelper instance = DatabaseHelper.instance;
+    returnedList = await instance.query();
+
+    returnedList!.forEach((element) {
+      Map<String, dynamic> contacts = element;
+      Contact contactObject = Contact(
+          id: contacts['id'],
+          name: contacts['name'],
+          number: contacts['mobile']);
+
+      contactList.add(contactObject);
+
+      contacts={};
+    });
+    print(contactList);
+  }
+
+  void savingToList(String name, String mobile)async{
+    DatabaseHelper instance = DatabaseHelper.instance;
+    returnedList = await instance.query();
+    Map<String,dynamic> contacts = returnedList![itemCount];
+    Contact contactObject = Contact(
+        id: contacts['id'],
+        name: contacts['name'],
+        number: contacts['mobile']);
+    setState(() {
+      contactList.add(contactObject);
+    });
+    contacts={};
   }
 
   // void toList() async {
