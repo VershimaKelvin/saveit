@@ -15,8 +15,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  // var data = [];
-  // var data2 = [];
+  int? savedId;
   var itemCount;
   List<Contact> contactList = [];
   List<Map<String, dynamic>>? returnedList;
@@ -33,7 +32,7 @@ class _MyAppState extends State<MyApp> {
   void getDatabase() async {
     DatabaseHelper instance = DatabaseHelper.instance;
     returnedList = await instance.query();
-    returnedList!.forEach((element) {
+    for (var element in returnedList!) {
       Map<String, dynamic> contacts = element;
         Contact contactObject = Contact(
             id: contacts['id'],
@@ -43,7 +42,7 @@ class _MyAppState extends State<MyApp> {
           contactList.add(contactObject);
         });
         contacts={};
-    });
+    }
   }
 
   @override
@@ -155,7 +154,7 @@ class _MyAppState extends State<MyApp> {
         'name': name,
         'mobile': number,
       };
-      int x = await instance.insert(row);
+      savedId= await instance.insert(row);
       savingToList(name,number);
       nameController.clear();
       numberController.clear();
