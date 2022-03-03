@@ -14,9 +14,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   int? savedId;
-  var itemCount;
   List<Contact> contactList = [];
   List<Map<String, dynamic>>? returnedList;
   final formKey = GlobalKey<FormState>();
@@ -34,14 +32,14 @@ class _MyAppState extends State<MyApp> {
     returnedList = await instance.query();
     for (var element in returnedList!) {
       Map<String, dynamic> contacts = element;
-        Contact contactObject = Contact(
-            id: contacts['id'],
-            name: contacts['name'],
-            number: contacts['mobile']);
-        setState(() {
-          contactList.add(contactObject);
-        });
-        contacts={};
+      Contact contactObject = Contact(
+          id: contacts['id'],
+          name: contacts['name'],
+          number: contacts['mobile']);
+      setState(() {
+        contactList.add(contactObject);
+      });
+      contacts = {};
     }
   }
 
@@ -141,11 +139,12 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-
   //after saved is clicked
   void onSave() async {
     if (formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved'),));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Saved'),
+      ));
       String name = nameController.text;
       String number = numberController.text;
 
@@ -154,55 +153,41 @@ class _MyAppState extends State<MyApp> {
         'name': name,
         'mobile': number,
       };
-      savedId= await instance.insert(row);
-      savingToList(name,number);
+      savedId = await instance.insert(row);
+      savingToList();
       nameController.clear();
       numberController.clear();
     }
   }
 
-  forSaving()async{
+  void savingToList() async {
     DatabaseHelper instance = DatabaseHelper.instance;
     returnedList = await instance.query();
-
-    returnedList!.forEach((element) {
+    for (var element in returnedList!) {
       Map<String, dynamic> contacts = element;
       Contact contactObject = Contact(
           id: contacts['id'],
           name: contacts['name'],
           number: contacts['mobile']);
-
-      contactList.add(contactObject);
-
+      if(contactObject.id== savedId){
+        setState(() {
+          contactList.add(contactObject);
+        });
+      }
       contacts={};
-    });
-    print(contactList);
+    }
   }
 
-  void savingToList(String name, String mobile)async{
-    DatabaseHelper instance = DatabaseHelper.instance;
-    returnedList = await instance.query();
-    Map<String,dynamic> contacts = returnedList![itemCount];
-    Contact contactObject = Contact(
-        id: contacts['id'],
-        name: contacts['name'],
-        number: contacts['mobile']);
-    setState(() {
-      contactList.add(contactObject);
-    });
-    contacts={};
-  }
-
-  // void toList() async {
-  //   DatabaseHelper instance = DatabaseHelper.instance;
-  //   returnedList = await instance.query();
-  //   for (var i = 0; i <= returnedList!.length; i++) {
-  //     Map<String, dynamic> contacts = returnedList![i];
-  //     Contact contactObject = Contact(
-  //         id: contacts['id'],
-  //         name: contacts['name'],
-  //         number: contacts['number']);
-  //     contactList.add(contactObject);
-  //   }
-  // }
+// void toList() async {
+//   DatabaseHelper instance = DatabaseHelper.instance;
+//   returnedList = await instance.query();
+//   for (var i = 0; i <= returnedList!.length; i++) {
+//     Map<String, dynamic> contacts = returnedList![i];
+//     Contact contactObject = Contact(
+//         id: contacts['id'],
+//         name: contacts['name'],
+//         number: contacts['number']);
+//     contactList.add(contactObject);
+//   }
+// }
 }
