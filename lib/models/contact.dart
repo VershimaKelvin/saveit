@@ -6,7 +6,12 @@ class Contact {
   Contact({this.id,this.name,this.number});
 
 
-  void display(){
-    print('$id $name $number');
+  Map<String, dynamic> toMap(){
+
+    return {
+      'id':id,
+      'name':name,
+      'number':number
+    };
   }
 }

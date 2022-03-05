@@ -14,6 +14,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+  Contact _contact = Contact();
   int? savedId;
   List<Contact> contactList = [];
   List<Map<String, dynamic>>? returnedList;
@@ -117,17 +119,26 @@ class _MyAppState extends State<MyApp> {
                   itemBuilder: (BuildContext context, int index) {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Card(
-                        child: ListTile(
-                          leading: Icon(
-                            Icons.person,
-                            color: Colors.blue[600],
+                      child: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            _contact=contactList[index];
+                            nameController.text= contactList[index].name!;
+                          numberController.text = contactList[index].number!;
+                          });
+                        },
+                        child: Card(
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.person,
+                              color: Colors.blue[600],
+                            ),
+                            title: Text(
+                              contactList[index].name!,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(contactList[index].number!),
                           ),
-                          title: Text(
-                            contactList[index].name!,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(contactList[index].number!),
                         ),
                       ),
                     );
@@ -141,20 +152,29 @@ class _MyAppState extends State<MyApp> {
 
   //after saved is clicked
   void onSave() async {
+    DatabaseHelper instance = DatabaseHelper.instance;
     if (formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Saved'),
       ));
       String name = nameController.text;
       String number = numberController.text;
+      if(_contact.id==null){
 
-      DatabaseHelper instance = DatabaseHelper.instance;
-      Map<String, dynamic> row = {
-        'name': name,
-        'mobile': number,
-      };
-      savedId = await instance.insert(row);
-      savingToList();
+        Map<String, dynamic> row = {
+          'name': name,
+          'mobile': number,
+        };
+        savedId = await instance.insert(row);
+        savingToList();
+      }else{
+        Map<String, dynamic> row = {
+          'name': name,
+          'mobile': number,
+        };
+        await instance.update(_contact);
+      }
+
       nameController.clear();
       numberController.clear();
     }
@@ -178,16 +198,4 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-// void toList() async {
-//   DatabaseHelper instance = DatabaseHelper.instance;
-//   returnedList = await instance.query();
-//   for (var i = 0; i <= returnedList!.length; i++) {
-//     Map<String, dynamic> contacts = returnedList![i];
-//     Contact contactObject = Contact(
-//         id: contacts['id'],
-//         name: contacts['name'],
-//         number: contacts['number']);
-//     contactList.add(contactObject);
-//   }
-// }
 }

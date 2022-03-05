@@ -1,13 +1,13 @@
 import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:saveit/models/contact.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper{
-  DatabaseHelper._();
-  static final DatabaseHelper instance = DatabaseHelper._();
+  DatabaseHelper.privateConstructor();
+  //DatabaseHelper._();
+  static final DatabaseHelper instance = DatabaseHelper.privateConstructor();
 
   Database? _database;
   static const _databaseName = 'myDb.db';
@@ -27,11 +27,12 @@ class DatabaseHelper{
   Future<Database> initializeDatabase() async{
     Directory directory = await getApplicationDocumentsDirectory();
     String path = join(directory.path,_databaseName);
-    return await openDatabase(path,version: 1,onCreate: onCreate);
+    return await openDatabase(path,version: _databaseVersion,onCreate: onCreate);
   }
 
   onCreate(Database db,int databaseVersion){
-    db.execute('''
+    db.execute(
+        '''
       CREATE TABLE $_tableName(
       $_idColumn INTEGER PRIMARY KEY,
       $_nameColumn TEXT NOT NULL,
@@ -49,5 +50,11 @@ class DatabaseHelper{
   Future<List<Map<String,dynamic>>> query()async{
     Database db = await instance.database;
     return await db.query(_tableName);
+  }
+
+  Future<int> update(Contact contacts)async{
+    Database db = await instance.database;
+    Contact contact = Contact();
+    return db.update(_tableName, contact.toMap(),where: '${contact.id}=?', whereArgs: [contact.id]);
   }
 }
